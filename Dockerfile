@@ -40,7 +40,7 @@ RUN curl -s https://raw.githubusercontent.com/danielmiessler/SecLists/master/Pas
 RUN echo ':\nd' > openrelik-password-cracking.rules
 
 # Copy poetry toml and install dependencies
-COPY ./pyproject.toml ./poetry.lock .
+COPY ./pyproject.toml ./poetry.lock ./
 RUN poetry install --no-interaction --no-ansi
 
 # Windows password cracking
