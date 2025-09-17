@@ -119,10 +119,6 @@ def task_factory(
                 file_reports.append(file_report)
                 output_files.append(report_file.to_dict())
 
-            if not output_files:
-                raise RuntimeError(
-                    f"{task_name_short} didn't create any output files")
-
         return create_task_result(
             output_files=output_files,
             workflow_id=workflow_id,
