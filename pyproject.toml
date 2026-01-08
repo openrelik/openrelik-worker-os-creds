@@ -10,7 +10,7 @@ package-mode = false
 python = ">=3.11,<4.0"
 celery = { extras = ["redis"], version = "^5.4.0" }
 openrelik-common = "^0.7.0"
-openrelik-worker-common = "^0.11.0"
+openrelik-worker-common = "^0.17.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "*"
