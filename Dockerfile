@@ -18,12 +18,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-setuptools \
     && rm -rf /var/lib/apt/lists/*
 
-# Configure poetry
-ENV POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_VIRTUALENVS_CREATE=1 \
-    POETRY_CACHE_DIR=/tmp/poetry_cache
-
 # Configure debugging
 ARG OPENRELIK_PYDEBUG
 ENV OPENRELIK_PYDEBUG ${OPENRELIK_PYDEBUG:-0}
@@ -39,20 +33,23 @@ RUN curl -s https://raw.githubusercontent.com/danielmiessler/SecLists/285474cf9b
 RUN curl -s https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-1000000.txt >> password.lst
 RUN echo ':\nd' > openrelik-password-cracking.rules
 
-# Copy poetry toml and install dependencies
-COPY ./pyproject.toml ./poetry.lock ./
-RUN poetry install --no-interaction --no-ansi
+# Install the latest uv binaries
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Windows password cracking
-RUN poetry run pip3 install setuptools
-RUN poetry run pip3 install impacket
+# Copy poetry toml and uv.lock
+COPY uv.lock pyproject.toml ./
+
+# Install the project's dependencies using the lockfile and settings
+RUN uv sync --locked --no-install-project --no-dev
 
 # Copy files needed to build
 COPY . ./
 
-# Install the worker and set environment to use the correct python interpreter.
-RUN poetry install && rm -rf $POETRY_CACHE_DIR
-ENV VIRTUAL_ENV=/app/.venv PATH="/openrelik/.venv/bin:$PATH"
+# Installing separately from its dependencies allows optimal layer caching
+RUN uv sync --locked --no-dev
+
+# Set PATH to use the virtual environment
+ENV PATH="/openrelik/.venv/bin:$PATH"
 
 # Default command if not run from docker-compose (and command being overidden)
 CMD ["celery", "--app=src.tasks", "worker", "--task-events", "--concurrency=1", "--loglevel=INFO"]
