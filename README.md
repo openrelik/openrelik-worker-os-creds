@@ -1,3 +1,7 @@
+> [!CAUTION]  
+> # NOTICE - DO NOT USE
+> This repository has been archived and moved to https://github.com/openrelik/openrelik-workers/}
+
 # Openrelik worker OS Creds Analyzer
 ## Description
 Extracts and brute forces Linux and Windows credentials to identify a likely method of compromise.
